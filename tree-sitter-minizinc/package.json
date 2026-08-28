@@ -1,0 +1,54 @@
+{
+	"name": "tree-sitter-minizinc",
+	"version": "0.1.0",
+	"description": "MiniZinc grammar for tree-sitter",
+	"repository": "git+https://github.com/shackle-rs/shackle.git",
+	"license": "MPL-2.0",
+	"author": {
+		"name": "Jip J. Dekker",
+		"email": "jip.dekker@monash.edu",
+		"url": "https://dekker.one/"
+	},
+	"main": "bindings/node",
+	"types": "bindings/node",
+	"keywords": [
+		"incremental",
+		"parsing",
+		"tree-sitter",
+		"minizinc"
+	],
+	"files": [
+		"grammar.js",
+		"tree-sitter.json",
+		"binding.gyp",
+		"prebuilds/**",
+		"bindings/node/*",
+		"queries/*",
+		"src/**",
+		"*.wasm"
+	],
+	"dependencies": {
+		"node-addon-api": "^8.6.0",
+		"node-gyp-build": "^4.8.2"
+	},
+	"devDependencies": {
+		"prebuildify": "^6.0.1",
+		"tree-sitter-cli": "^0.26.6"
+	},
+	"peerDependencies": {
+		"tree-sitter": "^0.25.0"
+	},
+	"peerDependenciesMeta": {
+		"tree-sitter": {
+			"optional": true
+		}
+	},
+	"scripts": {
+		"build": "tree-sitter generate && node-gyp-build",
+		"install": "node-gyp-build",
+		"node-test": "node --test bindings/node/*_test.js",
+		"prestart": "tree-sitter build --wasm",
+		"start": "tree-sitter playground",
+		"test": "tree-sitter test"
+	}
+}

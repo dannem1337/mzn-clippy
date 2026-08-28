@@ -1,0 +1,469 @@
+====================
+Annotated Expression
+====================
+
+constraint x :: simple;
+constraint x :: one :: two :: three;
+constraint x :: ann_func(1, ident, "string");
+% not well-defined, but should be parsed correctly
+constraint x :: (one :: two);
+constraint x :: indexed[2];
+constraint x :: one.1;
+constraint x :: one.two;
+---
+
+(source_file
+  item: (constraint expression: (annotated_expression expression: (identifier) annotation: (identifier)))
+  item: (constraint expression: (annotated_expression expression: (identifier) annotation: (identifier) annotation: (identifier) annotation: (identifier)))
+  item: (constraint expression: (annotated_expression expression: (identifier) annotation: (call function: (identifier) argument: (integer_literal) argument: (identifier) argument: (string_literal content: (string_characters)))))
+  (line_comment)
+  item: (constraint expression: (annotated_expression expression: (identifier) annotation: (parenthesised_expression expression: (annotated_expression expression: (identifier) annotation: (identifier)))))
+  item: (constraint expression: (annotated_expression expression: (identifier) annotation: (indexed_access collection: (identifier) index: (integer_literal))))
+  item: (constraint expression: (annotated_expression expression: (identifier) annotation: (tuple_access tuple: (identifier) field: (integer_literal))))
+  item: (constraint expression: (annotated_expression expression: (identifier) annotation: (record_access record: (identifier) field: (identifier)))))
+
+===================
+Array Comprehension
+===================
+
+simple = [ i | i in X ];
+where = [ i | i in X where i == 2 ];
+multiple = [ i | i in X, j in Y where i == j];
+
+---
+
+(source_file
+  (assignment (identifier) (array_comprehension (identifier) (generator (identifier) (identifier))))
+  (assignment (identifier) (array_comprehension (identifier) (generator (identifier) (identifier) (infix_operator (identifier) (integer_literal)))))
+  (assignment (identifier) (array_comprehension (identifier) (generator (identifier) (identifier)) (generator (identifier) (identifier) (infix_operator (identifier) (identifier))))))
+
+===========================
+Indexed Array Comprehension
+===========================
+
+simple = [ i: 1 | i in X ];
+where = [ i: 2.2 | i in X where i > 1 ];
+multiple = [ (i, j): i * j | i in X, j in Y];
+
+---
+
+(source_file
+  (assignment (identifier) (array_comprehension (identifier) (integer_literal) (generator (identifier) (identifier))))
+  (assignment (identifier) (array_comprehension (identifier) (float_literal) (generator (identifier) (identifier) (infix_operator (identifier) (integer_literal)))))
+  (assignment (identifier) (array_comprehension (tuple_literal (identifier) (identifier)) (infix_operator (identifier) (identifier)) (generator (identifier) (identifier)) (generator (identifier) (identifier)))))
+
+====
+Call
+====
+
+no_args = my_fn();
+single_arg = my_fn(1);
+mult_args = my_fn(2, "test");
+generator_lookalike = my_fn(x in Xs);
+double = my_fn(foo)(1);
+
+---
+
+(source_file
+  (assignment (identifier) (call (identifier)))
+  (assignment (identifier) (call (identifier) (integer_literal)))
+  (assignment (identifier) (call (identifier) (integer_literal) (string_literal (string_characters))))
+  (assignment (identifier) (call (identifier) (infix_operator (identifier) (identifier))))
+  (assignment (identifier) (call (call (identifier) (identifier)) (integer_literal))))
+
+==============
+Generator Call
+==============
+
+simple_sum = sum(i in N)(i);
+selective_sum = sum(i in N where i in X)(i);
+
+---
+
+(source_file
+  (assignment (identifier) (generator_call (identifier) (generator (identifier) (identifier)) (identifier)))
+  (assignment (identifier) (generator_call (identifier) (generator (identifier) (identifier) (infix_operator (identifier) (identifier))) (identifier))))
+
+============
+If-Then-Else
+============
+
+if_only = if b then i < j endif;
+value_select = if b then i else j endif;
+elseif = if b then i elseif c then j else k endif;
+elseif_no_else = if b then i < j elseif c then j > i endif;
+
+---
+
+(source_file
+  (assignment (identifier) (if_then_else (identifier) (infix_operator (identifier) (identifier))))
+  (assignment (identifier) (if_then_else (identifier) (identifier) (identifier)))
+  (assignment (identifier) (if_then_else (identifier) (identifier) (identifier) (identifier) (identifier)))
+  (assignment (identifier) (if_then_else (identifier) (infix_operator (identifier) (identifier)) (identifier) (infix_operator (identifier) (identifier)))))
+
+============
+Index Access 
+============
+
+named_collection = my_collection[1];
+named_accessor = my_collection[i];
+literal_collection = [1,2,3][i];
+multiple_accessor = my_collection[i,2];
+expression_accessor = my_collection[-i + 2];
+slice = my_collection[1..2];
+infinite_slice = my_collection[..];
+
+---
+
+(source_file
+  (assignment (identifier) (indexed_access (identifier) (integer_literal)))
+  (assignment (identifier) (indexed_access (identifier) (identifier)))
+  (assignment (identifier) (indexed_access (array_literal (array_literal_member (integer_literal)) (array_literal_member (integer_literal)) (array_literal_member (integer_literal))) (identifier)))
+  (assignment (identifier) (indexed_access (identifier) (identifier) (integer_literal)))
+  (assignment (identifier) (indexed_access (identifier) (infix_operator (prefix_operator (identifier)) (integer_literal))))
+  (assignment (identifier) (indexed_access (identifier) (infix_operator (integer_literal) (integer_literal))))
+  (assignment (identifier) (indexed_access (identifier))))
+
+==============
+Infix Operator
+==============
+
+exponent = x ^ y;
+mult = x * y;
+div = x / y;
+idiv = x div y;
+add = x + y;
+minus = x - y;
+set_inter = x intersect y;
+set_dotdot = x..y;
+set_dotdot_le = x..<y;
+set_le_dotdot_le = x<..<y;
+set_symdiff = x symdiff y;
+set_diff = x diff y;
+set_union = x union y;
+same = x = y;
+samedouble = x == y;
+different = x != y;
+smaller = x < y;
+bigger = x > y;
+smalleq = x <= y;
+bigeq = x >= y;
+set_in = x in y;
+set_sub = x subset y;
+set_super = x superset y;
+and = x /\ y;
+bool_xor = x xor y;
+or = x \/ y;
+def = x default y;
+not_call = x..(y);
+not_ident = x/y;
+
+---
+
+(source_file
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (parenthesised_expression (identifier))))
+  (assignment (identifier) (infix_operator (identifier) (identifier))))
+
+==============
+UTF8 Operators
+==============
+
+equiv = a ⟷  b;
+equiv = a ⇔ b;
+impl = a → b;
+impl = a ⇒ b;
+rimpl = a ← b;
+rimpl = a ⇐ b;
+disj = a ∨ b;
+excl_disj = a ⊻ b;
+conj = a ∧ b;
+not_eq = a ≠ b;
+leq = a ≤ b;
+geq = a ≥ b;
+_in = a ∈ b;
+sub = a ⊆ b;
+sup = a ⊇ b;
+_union = a ∪ b;
+_diff = a ∖ b;
+inter = a ∩ b;
+
+---
+
+(source_file
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier)))
+  (assignment (identifier) (infix_operator (identifier) (identifier))))
+
+==============
+Let Expression
+==============
+
+empty = let {} in 1;
+var_offset = let {var int: a;} in a + 3;
+constrained = let {constraint x = y} in x;
+multiple = let {var int: a, var int: b} in a + b;
+
+---
+
+(source_file
+  (assignment (identifier) (let_expression (integer_literal)))
+  (assignment (identifier) (let_expression (declaration (type_base (primitive_type)) (identifier)) (infix_operator (identifier) (integer_literal))))
+  (assignment (identifier) (let_expression (constraint (infix_operator (identifier) (identifier))) (identifier)))
+  (assignment (identifier) (let_expression (declaration (type_base (primitive_type)) (identifier)) (declaration (type_base (primitive_type)) (identifier)) (infix_operator (identifier) (identifier)))))
+
+===========
+Precedences
+===========
+
+given_precedence = (1 + 1) * 1;
+mult_first = 1 + 1 * 1;
+exp_first = 1 * 1 ^ 1;
+annotation_bind = 1 ^ 1::some_ann;
+
+---
+
+(source_file
+  (assignment (identifier) (infix_operator (parenthesised_expression (infix_operator (integer_literal) (integer_literal))) (integer_literal)))
+  (assignment (identifier) (infix_operator (integer_literal) (infix_operator (integer_literal) (integer_literal))))
+  (assignment (identifier) (infix_operator (integer_literal) (infix_operator (integer_literal) (integer_literal))))
+  (assignment (identifier) (infix_operator (integer_literal) (annotated_expression (integer_literal) (identifier)))))
+
+===============
+Prefix Operator
+===============
+
+negative_number = -5;
+negative_ident = -num;
+
+negated_bool = not true;
+unicode_negation = ¬ b;
+
+dot_dot_right = ..y;
+le_dot_dot_right = <..y;
+le_dot_dot_le_right = <..<y;
+
+negative_range = -5..-1;
+
+---
+
+(source_file
+  (assignment (identifier) (prefix_operator (integer_literal)))
+  (assignment (identifier) (prefix_operator (identifier)))
+  (assignment (identifier) (prefix_operator (boolean_literal)))
+  (assignment (identifier) (prefix_operator (identifier)))
+  (assignment (identifier) (prefix_operator (identifier)))
+  (assignment (identifier) (prefix_operator (identifier)))
+  (assignment (identifier) (prefix_operator (identifier)))
+  (assignment (identifier) (infix_operator (prefix_operator (integer_literal)) (prefix_operator (integer_literal)))))
+
+
+================
+Postfix Operator
+================
+
+left_dot_dot = x..;
+left_le_dot_dot = x<..;
+left_le_dot_dot_le = x<..<;
+
+---
+
+(source_file
+  (assignment (identifier) (postfix_operator (identifier)))
+  (assignment (identifier) (postfix_operator (identifier)))
+  (assignment (identifier) (postfix_operator (identifier))))
+
+=================
+Set Comprehension
+=================
+
+simple = { i | i in X };
+where = { i | i in X where i == 2 };
+multiple = { i | i in X, j in Y where i == j};
+
+---
+
+(source_file
+  (assignment (identifier) (set_comprehension (identifier) (generator (identifier) (identifier))))
+  (assignment (identifier) (set_comprehension (identifier) (generator (identifier) (identifier) (infix_operator (identifier) (integer_literal)))))
+  (assignment (identifier) (set_comprehension (identifier) (generator (identifier) (identifier)) (generator (identifier) (identifier) (infix_operator (identifier) (identifier))))))
+
+====================
+String Interpolation
+====================
+
+simple = "\(x)";
+with_text = "the \(i)th variable";
+multiple = "\(x) and \(y)";
+
+---
+
+(source_file
+  (assignment (identifier) (string_interpolation (identifier)))
+  (assignment (identifier) (string_interpolation (string_characters) (identifier) (string_characters)))
+  (assignment (identifier) (string_interpolation (identifier) (string_characters) (identifier))))
+
+===========
+Identifiers
+===========
+
+simple = 1;
+under_score = 1;
+'quoted' = 1;
+'foo/bar' = 1;
+'++' = 1;
+'∪' = 1;
+✔️ = 1;
+Δ = 1;
+🥳 = "party";
+
+---
+
+(source_file
+  (assignment (identifier) (integer_literal))
+  (assignment (identifier) (integer_literal))
+  (assignment (quoted_identifier) (integer_literal))
+  (assignment (quoted_identifier) (integer_literal))
+  (assignment (quoted_identifier) (integer_literal))
+  (assignment (quoted_identifier) (integer_literal))
+  (assignment (identifier) (integer_literal))
+  (assignment (identifier) (integer_literal))
+  (assignment (identifier) (string_literal (string_characters))))
+
+============
+Tuple access
+============
+
+first = my_tuple.1;
+second = my_tuple.2;
+large = my_tuple.23;
+double = my_tuple.1.2;
+call = my_tuple.1(2).3;
+
+---
+
+(source_file
+  (assignment (identifier) (tuple_access (identifier) (integer_literal)))
+  (assignment (identifier) (tuple_access (identifier) (integer_literal)))
+  (assignment (identifier) (tuple_access (identifier) (integer_literal)))
+  (assignment (identifier) (tuple_access (tuple_access (identifier) (integer_literal)) (integer_literal)))
+  (assignment (identifier) (tuple_access (call (tuple_access (identifier) (integer_literal)) (integer_literal)) (integer_literal))))
+
+=============
+Record access
+=============
+
+simple = my_record.foo;
+unicode = my_record.✔️;
+quoted = my_record.'foo/bar';
+double = my_record.foo.bar;
+call = my_record.foo(3).bar;
+
+---
+
+(source_file
+  (assignment (identifier) (record_access (identifier) (identifier)))
+  (assignment (identifier) (record_access (identifier) (identifier)))
+  (assignment (identifier) (record_access (identifier) (quoted_identifier)))
+  (assignment (identifier) (record_access (record_access (identifier) (identifier)) (identifier)))
+  (assignment (identifier) (record_access (call (record_access (identifier) (identifier)) (integer_literal)) (identifier))))
+
+====
+Case
+====
+
+simple =
+  case x of
+    id => 1,
+    Fn(a, 1) => 2,
+    (a, "b") => 3,
+    (one: a, two: b) => 4,
+    _ => 5
+  endcase;
+nested =
+  case x of
+    Foo(Bar(_), (a, (-1, c)), (a: b, c: (d: e))) => true
+  endcase;
+
+---
+
+(source_file
+  (assignment (identifier) (case_expression (identifier)
+    (case_expression_case (identifier) (integer_literal))
+    (case_expression_case (pattern_call (identifier) (identifier) (pattern_numeric_literal (integer_literal))) (integer_literal))
+    (case_expression_case (pattern_tuple (identifier) (string_literal (string_characters))) (integer_literal))
+    (case_expression_case (pattern_record (pattern_record_field (identifier) (identifier)) (pattern_record_field (identifier) (identifier))) (integer_literal))
+    (case_expression_case (anonymous) (integer_literal))))
+  (assignment (identifier) (case_expression (identifier)
+    (case_expression_case
+      (pattern_call
+        (identifier)
+        (pattern_call (identifier) (anonymous))
+        (pattern_tuple (identifier) (pattern_tuple (pattern_numeric_literal (integer_literal)) (identifier)))
+        (pattern_record (pattern_record_field (identifier) (identifier)) (pattern_record_field (identifier) (pattern_record (pattern_record_field (identifier) (identifier))))))
+      (boolean_literal)))))
+
+======
+Lambda
+======
+
+with_return_type = lambda int: (bool: x) => x;
+without_return = lambda (bool: x) => x;
+curried = lambda (int: x) => lambda (int: y) => x + y;
+
+---
+
+(source_file
+  (assignment (identifier) (lambda
+    (type_base (primitive_type))
+    (parameter (type_base (primitive_type)) (identifier))
+    (identifier)))
+  (assignment (identifier) (lambda 
+    (parameter (type_base (primitive_type)) (identifier)) 
+    (identifier)))
+  (assignment (identifier) (lambda
+    (parameter (type_base (primitive_type)) (identifier))
+    (lambda
+      (parameter (type_base (primitive_type)) (identifier))
+      (infix_operator (identifier) (identifier))))))

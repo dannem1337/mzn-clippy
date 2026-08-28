@@ -1,0 +1,62 @@
+==========
+Empty File
+==========
+
+---
+
+(source_file)
+
+==================
+End with semicolon
+==================
+
+a = b;
+
+---
+
+(source_file
+  (assignment (identifier) (identifier)))
+
+=====================
+End without semicolon
+=====================
+
+a = b
+
+---
+
+(source_file
+  (assignment (identifier) (identifier)))
+
+==============
+Block comments
+==============
+
+/*
+ * Block comments
+ */
+
+/* Comment with asterisks **/
+
+----
+
+(source_file
+  (block_comment)
+  (block_comment))
+
+=============
+Line comments
+=============
+
+% Comment
+
+%---%
+
+%
+
+----
+
+(source_file
+  (line_comment)
+  (line_comment)
+  (line_comment))

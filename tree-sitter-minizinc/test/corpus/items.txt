@@ -1,0 +1,173 @@
+==========
+Annotation
+==========
+
+annotation simple;
+annotation funclike(int, int);
+annotation funcnames(int: x, int: y);
+
+---
+
+(source_file
+  (annotation (identifier))
+  (annotation (identifier) (annotation_parameters (parameter (type_base (primitive_type))) (parameter (type_base (primitive_type)))))
+  (annotation (identifier) (annotation_parameters (parameter (type_base (primitive_type)) (identifier)) (parameter (type_base (primitive_type)) (identifier)))))
+
+==========
+Assignment
+==========
+
+this = that;
+
+---
+
+(source_file
+  (assignment (identifier) (identifier)))
+
+
+==========
+Constraint
+==========
+
+constraint true;
+
+---
+
+(source_file
+  (constraint (boolean_literal)))
+
+===========
+Declaration
+===========
+
+var int: simple_decl;
+var int: with_ann ::annotated;
+var int: with_more_ann ::annotated ::and_again ::and_again;
+array[X, 1..23] of var int: simple_decl = some_call(X);
+any: (x, y);
+
+---
+
+(source_file
+  item: (declaration type: (type_base domain: (primitive_type)) name: (identifier))
+  item: (declaration type: (type_base domain: (primitive_type)) name: (identifier) annotation: (identifier))
+  item: (declaration type: (type_base domain: (primitive_type)) name: (identifier) annotation: (identifier) annotation: (identifier) annotation: (identifier))
+  item: (declaration type: (array_type dimension: (type_base domain: (identifier)) dimension: (type_base domain: (infix_operator left: (integer_literal) right: (integer_literal))) type: (type_base domain: (primitive_type))) name: (identifier) definition: (call function: (identifier) argument: (identifier)))
+  item: (declaration type: (any_type) name: (pattern_tuple field: (identifier) field: (identifier))))
+
+===========
+Enumeration
+===========
+
+enum in_dzn;
+enum with_ann ::annotated;
+enum empty = {};
+enum with_members = {a, b, c};
+enum anonymous_enum = _(1..3);
+enum enum_constructor = {d, e} ++ Foo(with_members);
+enum anonymous_product = _(1..3, 1..2);
+enum enum_constructor_product = Foo(1..3, 1..2);
+
+---
+
+(source_file
+  item: (enumeration name: (identifier))
+  item: (enumeration name: (identifier) annotation: (identifier))
+  item: (enumeration name: (identifier) case: (enumeration_members))
+  item: (enumeration name: (identifier) case: (enumeration_members member: (identifier) member: (identifier) member: (identifier)))
+  item: (enumeration name: (identifier) case: (anonymous_enumeration name: (anonymous) parameter: (type_base domain: (infix_operator left: (integer_literal) right: (integer_literal)))))
+  item: (enumeration name: (identifier) case: (enumeration_members member: (identifier) member: (identifier)) case: (enumeration_constructor name: (identifier) parameter: (type_base domain: (identifier))))
+  item: (enumeration name: (identifier) case: (anonymous_enumeration name: (anonymous) parameter: (type_base domain: (infix_operator left: (integer_literal) right: (integer_literal))) parameter: (type_base domain: (infix_operator left: (integer_literal) right: (integer_literal)))))
+  item: (enumeration name: (identifier) case: (enumeration_constructor name: (identifier) parameter: (type_base domain: (infix_operator left: (integer_literal) right: (integer_literal))) parameter: (type_base domain: (infix_operator left: (integer_literal) right: (integer_literal))))))
+
+========
+Function
+========
+
+function int: this();
+function var int: that() = this();
+function X: with_args(int, float);
+function X: with_named_args(X: x, bool: b) = something(b, x);
+function X: with_annotation(int, float) ::func_ann;
+function X: with_annotated_param(int, bool: x :: foo);
+function X: with_pattern(T: (x, y));
+
+---
+
+(source_file
+  item: (function_item type: (type_base domain: (primitive_type)) name: (identifier))
+  item: (function_item type: (type_base domain: (primitive_type)) name: (identifier) body: (call function: (identifier)))
+  item: (function_item type: (type_base domain: (identifier)) name: (identifier) parameter: (parameter type: (type_base domain: (primitive_type))) parameter: (parameter type: (type_base domain: (primitive_type))))
+  item: (function_item type: (type_base domain: (identifier)) name: (identifier) parameter: (parameter type: (type_base domain: (identifier)) name: (identifier)) parameter: (parameter type: (type_base domain: (primitive_type)) name: (identifier)) body: (call function: (identifier) argument: (identifier) argument: (identifier)))
+  item: (function_item type: (type_base domain: (identifier)) name: (identifier) parameter: (parameter type: (type_base domain: (primitive_type))) parameter: (parameter type: (type_base domain: (primitive_type))) annotation: (identifier))
+  item: (function_item type: (type_base domain: (identifier)) name: (identifier) parameter: (parameter type: (type_base domain: (primitive_type))) parameter: (parameter type: (type_base domain: (primitive_type)) name: (identifier) annotation: (identifier)))
+  item: (function_item type: (type_base domain: (identifier)) name: (identifier) parameter: (parameter type: (type_base domain: (identifier)) name: (pattern_tuple field: (identifier) field: (identifier)))))
+
+====
+Goal
+====
+
+solve satisfy;
+solve maximize this;
+solve minimize that;
+
+---
+
+(source_file
+  (goal)
+  (goal (identifier))
+  (goal (identifier)))
+
+=======
+Include
+=======
+
+include "globals.mzn";
+
+---
+
+(source_file
+  (include (string_literal (string_characters))))
+
+=======
+Output
+=======
+
+output ["something"];
+output :: "section" ["something"];
+
+---
+
+(source_file
+  (output (array_literal (array_literal_member (string_literal (string_characters)))))
+  (output (string_literal (string_characters)) (array_literal (array_literal_member (string_literal (string_characters))))))
+
+=========
+Predicate
+=========
+
+test pred();
+predicate redirecht() = pred();
+predicate with_args(1..10: x, var bool: b) = pred();
+
+---
+
+(source_file
+  (predicate (identifier))
+  (predicate (identifier) (call (identifier)))
+  (predicate (identifier) (parameter (type_base (infix_operator (integer_literal) (integer_literal))) (identifier)) (parameter (type_base (primitive_type)) (identifier)) (call (identifier))))
+
+==========
+Type alias
+==========
+
+type foo = set of int;
+type bar = array [int] of int;
+type qux = foo;
+
+---
+
+(source_file
+  (type_alias (identifier) (set_type (type_base (primitive_type))))
+  (type_alias (identifier) (array_type (type_base (primitive_type)) (type_base (primitive_type))))
+  (type_alias (identifier) (type_base (identifier))))

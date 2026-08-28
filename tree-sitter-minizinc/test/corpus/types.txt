@@ -1,0 +1,191 @@
+=====
+Array
+=====
+
+array[int] of int: single_index;
+array[int, int] of int: two_indices;
+array[X] of int: named_index;
+array[1..10] of int: expr_index;
+list of int: no_index_list;
+
+---
+
+(source_file
+  (declaration (array_type (type_base (primitive_type)) (type_base (primitive_type))) (identifier))
+  (declaration (array_type (type_base (primitive_type)) (type_base (primitive_type)) (type_base (primitive_type))) (identifier))
+  (declaration (array_type (type_base (identifier)) (type_base (primitive_type))) (identifier))
+  (declaration (array_type (type_base (infix_operator (integer_literal) (integer_literal))) (type_base (primitive_type))) (identifier))
+  (declaration (list_type (type_base (primitive_type))) (identifier)))
+
+==========
+Identifier
+==========
+
+named: n;
+mybool: b;
+integer: i;
+
+---
+
+(source_file
+  (declaration (type_base (identifier)) (identifier))
+  (declaration (type_base (identifier)) (identifier))
+  (declaration (type_base (identifier)) (identifier)))
+
+==========
+Expression
+==========
+
+1..10: x;
+-1..length(X): y;
+
+---
+
+(source_file
+  (declaration (type_base (infix_operator (integer_literal) (integer_literal))) (identifier))
+  (declaration (type_base (infix_operator (prefix_operator (integer_literal)) (call (identifier) (identifier)))) (identifier)))
+
+========
+Optional
+========
+
+opt int: i;
+var opt int: voi;
+par opt int: poi;
+
+---
+
+(source_file
+  (declaration (type_base (primitive_type)) (identifier))
+  (declaration (type_base (primitive_type)) (identifier))
+  (declaration (type_base (primitive_type)) (identifier)))
+
+=======
+Par/Var
+=======
+
+par int: p;
+var float: v;
+var X: named_domain;
+par 1..10: expr_domain;
+
+---
+
+(source_file
+  (declaration (type_base (primitive_type)) (identifier))
+  (declaration (type_base (primitive_type)) (identifier))
+  (declaration (type_base (identifier)) (identifier))
+  (declaration (type_base (infix_operator (integer_literal) (integer_literal))) (identifier)))
+
+=========
+Primitive
+=========
+
+ann: a;
+bool: b;
+float: f;
+int: i;
+string: s;
+
+---
+
+(source_file
+  (declaration (type_base (primitive_type)) (identifier))
+  (declaration (type_base (primitive_type)) (identifier))
+  (declaration (type_base (primitive_type)) (identifier))
+  (declaration (type_base (primitive_type)) (identifier))
+  (declaration (type_base (primitive_type)) (identifier)))
+
+===
+Set
+===
+
+set of int: basic_set;
+var opt set of float: qualified_type_set;
+set of X: named_type_set;
+set of 1..10: expr_type_set;
+
+---
+
+(source_file
+  (declaration (set_type (type_base (primitive_type))) (identifier))
+  (declaration (set_type (type_base (primitive_type))) (identifier))
+  (declaration (set_type (type_base (identifier))) (identifier))
+  (declaration (set_type (type_base (infix_operator (integer_literal) (integer_literal)))) (identifier)))
+
+============
+Type-inst ID
+============
+
+var $T: x;
+array [$$T, $$U] of $V: y;
+set of $$T: z;
+
+---
+
+(source_file
+  (declaration (type_base (type_inst_id)) (identifier))
+  (declaration (array_type (type_base (type_inst_enum_id)) (type_base (type_inst_enum_id)) (type_base (type_inst_id))) (identifier))
+  (declaration (set_type (type_base (type_inst_enum_id))) (identifier)))
+
+===
+Any
+===
+
+any: x;
+any $T: y;
+
+---
+
+(source_file
+  (declaration (any_type) (identifier))
+  (declaration (type_base (type_inst_id)) (identifier)))
+
+=====
+Tuple
+=====
+
+tuple(int, float): double;
+tuple(int, float, string): triple;
+tuple(array [int] of tuple(int, float), tuple(string, bool)): complex;
+
+---
+
+(source_file
+  (declaration (tuple_type (type_base (primitive_type)) (type_base (primitive_type))) (identifier))
+  (declaration (tuple_type (type_base (primitive_type)) (type_base (primitive_type)) (type_base (primitive_type))) (identifier))
+  (declaration (tuple_type (array_type (type_base (primitive_type)) (tuple_type (type_base (primitive_type)) (type_base (primitive_type)))) (tuple_type (type_base (primitive_type)) (type_base (primitive_type)))) (identifier)))
+
+======
+Record
+======
+
+record(int: a): single;
+record(int: a, float: b): double;
+record(array [int] of record(string: a, float: b): c, tuple(bool, record(ann: e)): f): complex;
+
+---
+
+(source_file
+  (declaration (record_type (record_type_field (type_base (primitive_type)) (identifier))) (identifier))
+  (declaration (record_type (record_type_field (type_base (primitive_type)) (identifier)) (record_type_field (type_base (primitive_type)) (identifier))) (identifier))
+  (declaration (record_type
+    (record_type_field (array_type (type_base (primitive_type)) (record_type (record_type_field (type_base (primitive_type)) (identifier)) (record_type_field (type_base (primitive_type)) (identifier)))) (identifier))
+    (record_type_field (tuple_type (type_base (primitive_type)) (record_type (record_type_field (type_base (primitive_type)) (identifier)))) (identifier))) (identifier)))
+
+=========
+Operation
+=========
+
+op(int: ()): none;
+op(int: (bool)): one;
+op(int: (bool, int)): two;
+op(int: (op(bool: (int, float)))): nested;
+
+---
+
+(source_file
+  (declaration (operation_type (type_base (primitive_type))) (identifier))
+  (declaration (operation_type (type_base (primitive_type)) (type_base (primitive_type))) (identifier))
+  (declaration (operation_type (type_base (primitive_type)) (type_base (primitive_type)) (type_base (primitive_type))) (identifier))
+  (declaration (operation_type (type_base (primitive_type)) (operation_type (type_base (primitive_type)) (type_base (primitive_type)) (type_base (primitive_type)))) (identifier)))

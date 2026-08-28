@@ -1,0 +1,14 @@
+use super::{Lint, Diagnostics};
+use tree_sitter::Tree;
+
+pub(super) struct UnboundedVariables;
+
+impl Lint for UnboundedVariables {
+    fn check(&self, tree: &Tree, source: &str) -> Vec<Diagnostics> {
+
+
+        vec![ Diagnostics {
+            code: String::new()
+        }]
+    }
+}
