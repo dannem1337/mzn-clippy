@@ -14,7 +14,7 @@ struct Cli {
     files: Vec<PathBuf>,
 }
 
-#[warn(unused)]
+#[allow(unused)]
 fn print_node(node: tree_sitter::Node, source: &str, depth: usize) {
     let indent = "  ".repeat(depth);
     let text = if node.child_count() == 0 {

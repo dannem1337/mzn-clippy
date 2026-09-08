@@ -1,5 +1,6 @@
 mod unbounded_variables;
 
+use owo_colors::OwoColorize;
 use std::fmt;
 use tree_sitter::{Point, Tree};
 use unbounded_variables::UnboundedVariables;
@@ -38,17 +39,23 @@ impl Diagnostic {
             lint_id: meta.lint_id,
             name: meta.name,
             severity: meta.severity,
-            start_pos: start_pos,
-            end_pos: end_pos,
+            start_pos,
+            end_pos,
         }
     }
 }
 
 impl fmt::Display for Diagnostic {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let severity = match self.severity {
+            Severity::Error => "error".red().bold().to_string(),
+            Severity::Warning => "warning".yellow().bold().to_string(),
+        };
+
         write!(
             f,
-            "[{}] {} at {}:{} to {}:{} ",
+            "{} [{}] {} at {}:{} to {}:{} ",
+            severity,
             self.lint_id,
             self.name,
             self.start_pos.row + 1,
