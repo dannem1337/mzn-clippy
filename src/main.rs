@@ -1,9 +1,9 @@
 mod lints;
 
+use lints::LintEngine;
 use std::fs;
 use std::path::PathBuf;
 use std::process::ExitCode;
-use lints::LintEngine;
 
 use clap::Parser;
 
@@ -11,9 +11,10 @@ use clap::Parser;
 #[command(name = "mzn clippy")]
 struct Cli {
     #[arg(required = true)]
-    files: Vec<PathBuf>
+    files: Vec<PathBuf>,
 }
 
+#[warn(unused)]
 fn print_node(node: tree_sitter::Node, source: &str, depth: usize) {
     let indent = "  ".repeat(depth);
     let text = if node.child_count() == 0 {
@@ -32,8 +33,6 @@ fn print_node(node: tree_sitter::Node, source: &str, depth: usize) {
     for child in node.children(&mut cursor) {
         print_node(child, source, depth + 1);
     }
-
-
 }
 
 fn main() -> ExitCode {
@@ -44,9 +43,8 @@ fn main() -> ExitCode {
             Ok(s) => s,
             Err(e) => {
                 eprintln!("error: can not read file {}, {}", path.display(), e);
-                return ExitCode::FAILURE
+                return ExitCode::FAILURE;
             }
-
         };
         let mut parser = tree_sitter::Parser::new();
         parser
@@ -56,7 +54,7 @@ fn main() -> ExitCode {
             Some(t) => t,
             None => {
                 eprintln!("error: tree-sitter failed to parse {}", path.display());
-                return ExitCode::FAILURE
+                return ExitCode::FAILURE;
             }
         };
         //println!("node print: {}", tree.root_node());
@@ -65,7 +63,7 @@ fn main() -> ExitCode {
         let lint_engine = LintEngine::new();
         for lint in lint_engine.lints {
             let diagnostics = lint.check(&tree, &source);
-            lint.(&tree, &source);
+            diagnostics.iter().for_each(|diag| println!("{}", diag));
         }
     }
     ExitCode::SUCCESS
