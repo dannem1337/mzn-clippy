@@ -89,6 +89,7 @@ module.exports = grammar({
 				$.include,
 				$.output,
 				$.predicate,
+				$.test,
 				$.type_alias
 			),
 
@@ -167,7 +168,15 @@ module.exports = grammar({
 
 		predicate: ($) =>
 			seq(
-				field("type", choice("predicate", "test")),
+                "predicate",
+				field("name", $._identifier),
+				$._parameters,
+				optional($._annotation_list),
+				optional(seq("=", field("body", $._expression)))
+			),
+		test: ($) =>
+			seq(
+                "test",
 				field("name", $._identifier),
 				$._parameters,
 				optional($._annotation_list),
