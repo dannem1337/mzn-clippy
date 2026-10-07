@@ -1,7 +1,8 @@
 use super::{Diagnostic, Lint, LintMetadata, Severity};
-use tree_sitter::{Query, QueryCursor, StreamingIterator, Tree};
+use crate::lint_engine::LintContext;
+use tree_sitter::{Query, QueryCursor, StreamingIterator};
 
-pub(super) struct UnboundedVariables;
+pub struct UnboundedVariables;
 
 impl UnboundedVariables {
     pub const METADATA: LintMetadata = LintMetadata {
@@ -16,7 +17,7 @@ impl Lint for UnboundedVariables {
         &Self::METADATA
     }
 
-    fn check(&self, tree: &Tree, source: &str) -> Vec<Diagnostic> {
+    fn check(&self, context: &LintContext) -> Vec<Diagnostic> {
         let query = Query::new(
             &tree_sitter_minizinc::LANGUAGE.into(),
             r#"
@@ -29,7 +30,8 @@ impl Lint for UnboundedVariables {
         let capture_idx_var = query.capture_index_for_name("var").unwrap();
         let capture_idx_int = query.capture_index_for_name("int").unwrap();
         let mut query_cursor = QueryCursor::new();
-        let mut matches = query_cursor.matches(&query, tree.root_node(), source.as_bytes());
+        let mut matches =
+            query_cursor.matches(&query, context.tree.root_node(), context.source.as_bytes());
         let mut diagnostics = vec![];
         while let Some(m) = matches.next() {
             let start_capture = m.captures.iter().find(|x| x.index == capture_idx_var);

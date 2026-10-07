@@ -1,12 +1,13 @@
-mod unbounded_variables;
+pub mod dead_code;
+pub mod unbounded_variables;
 
+use crate::lint_engine::LintContext;
 use owo_colors::OwoColorize;
 use std::fmt;
-use tree_sitter::{Point, Tree};
-use unbounded_variables::UnboundedVariables;
+use tree_sitter::Point;
 
 pub trait Lint {
-    fn check(&self, tree: &Tree, source: &str) -> Vec<Diagnostic>;
+    fn check(&self, context: &LintContext) -> Vec<Diagnostic>;
     fn lint_info(&self) -> &LintMetadata;
 }
 
@@ -61,19 +62,7 @@ impl fmt::Display for Diagnostic {
             self.start_pos.row + 1,
             self.start_pos.column + 1,
             self.end_pos.row + 1,
-            self.end_pos.column + 1,
+            self.end_pos.column,
         )
-    }
-}
-
-pub struct LintEngine {
-    pub lints: Vec<Box<dyn Lint>>,
-}
-
-impl LintEngine {
-    pub fn new() -> Self {
-        Self {
-            lints: vec![Box::new(UnboundedVariables)],
-        }
     }
 }

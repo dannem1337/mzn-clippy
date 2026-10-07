@@ -1,11 +1,11 @@
+mod lint_engine;
 mod lints;
 
-use lints::LintEngine;
+use clap::Parser;
+use lint_engine::LintEngine;
 use std::fs;
 use std::path::PathBuf;
 use std::process::ExitCode;
-
-use clap::Parser;
 
 #[derive(Parser)]
 #[command(name = "mzn clippy")]
@@ -14,7 +14,7 @@ struct Cli {
     files: Vec<PathBuf>,
 }
 
-#[allow(unused)]
+#[warn(dead_code)]
 fn print_node(node: tree_sitter::Node, source: &str, depth: usize) {
     let indent = "  ".repeat(depth);
     let text = if node.child_count() == 0 {
@@ -57,14 +57,11 @@ fn main() -> ExitCode {
                 return ExitCode::FAILURE;
             }
         };
-        //println!("node print: {}", tree.root_node());
-        //print_node(tree.root_node(), &source, 0);
+        // println!("node print: {}", tree.root_node());
+        // print_node(tree.root_node(), &source, 0);
 
-        let lint_engine = LintEngine::new();
-        for lint in lint_engine.lints {
-            let diagnostics = lint.check(&tree, &source);
-            diagnostics.iter().for_each(|diag| println!("{}", diag));
-        }
+        let lint_engine = LintEngine::new(tree, source);
+        lint_engine.run_lints();
     }
     ExitCode::SUCCESS
 }
